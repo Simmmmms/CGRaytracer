@@ -1,23 +1,17 @@
+#include "misc.h"
+#include "hittable_list.h"
 #include <iostream>
 #include <image.h>
-#include <eigen3/Eigen/Core>
-#include <ray.h>
+#include <sphere.h>
 
-bool hit_sphere(const point3& center, double radius, const ray& r) {
-    vec3 oc = r.origin() - center;
-    auto a = r.direction().dot(r.direction());
-    auto b = 2.0 * oc.dot(r.direction());
-    auto c = oc.dot(oc) - radius*radius;
-    auto discriminant = b*b - 4*a*c;
-    return (discriminant > 0);
-}
 
-color ray_color(const ray& r) {
-    if (hit_sphere(point3(0,0,-1), 0.5, r))
-        return color(1, 0, 0);
-
+color ray_color(const ray& r, const hittable& world) {
+    hit_record rec;
+    if(world.hit(r,0,infinity,rec)){
+                return 0.5 * (rec.normal + color(1,1,1));
+    }
     vec3 unit_direction = r.direction().normalized();
-    auto t = 0.5*(-unit_direction.y() + 1.0);
+    auto t = 0.5*(unit_direction.y() + 1.0);
     return (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0);
 }
 
@@ -28,6 +22,12 @@ int main(){
     const auto aspect_ratio = 16.0 / 9.0;
     const int image_width = 400;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
+
+    //World attributes (objects in scene)
+
+    hittable_list world;
+    world.add(make_shared<sphere>(point3(0,0,-1), 0.5));//adds a sphere with radius 0.5 at 0,0,-1
+    world.add(make_shared<sphere>(point3(0,-100.5,-1), 100));
 
     //Camera attributes
     auto viewport_height = 2.0;
@@ -44,16 +44,16 @@ int main(){
 
     std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
-    for (int j = 0; j < image_height; j++){
+    for (int j = image_height; j >= 0 ; j--){
         for(int i = 0; i<image_width; i++){
             
             auto u = double(i) / (image_width -1 );
             auto v = double(j) / (image_height -1 );
             //Create a ray originating from the camera origin, pointing towards the specified pixel on the viewport
             //The pixel is specified by the offset from the lower left corner of the viewport
-            ray r(origin, (lower_left_corner + u*horizontal + v*vertical - origin).normalized());
+            ray r(origin, (lower_left_corner + u*horizontal + v*vertical - origin));
 
-            color pixel_color = ray_color(r);
+            color pixel_color = ray_color(r, world);
             write_color(std::cout, pixel_color);
 
         }
