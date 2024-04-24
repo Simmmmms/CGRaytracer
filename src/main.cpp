@@ -3,7 +3,7 @@
 #include <iostream>
 #include <image.h>
 #include <sphere.h>
-
+#include <triangle.h>
 
 color ray_color(const ray& r, const hittable& world) {
     hit_record rec;
@@ -17,6 +17,8 @@ color ray_color(const ray& r, const hittable& world) {
 
 
 int main(){
+    std::vector<vec3> t = {vec3(0,0,-5), vec3(1,0,-5),vec3(1,1,-1)};
+    std::vector<vec3> t2 = {vec3(-3,-3,-5), vec3(-1,0,-5),vec3(1,1,-1)};
     
     //Image attributes
     const auto aspect_ratio = 16.0 / 9.0;
@@ -26,7 +28,9 @@ int main(){
     //World attributes (objects in scene)
 
     hittable_list world;
-    world.add(make_shared<sphere>(point3(0,0,-1), 0.5));//adds a sphere with radius 0.5 at 0,0,-1
+    //world.add(make_shared<sphere>(point3(0,0,-1), 0.5));//adds a sphere with radius 0.5 at 0,0,-1
+    world.add(make_shared<triangle>(t));
+    world.add(make_shared<triangle>(t2));
     world.add(make_shared<sphere>(point3(0,-100.5,-1), 100));
 
     //Camera attributes
