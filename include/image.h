@@ -7,16 +7,20 @@
 
 using color = Eigen::Vector3f;
 
-void write_color(std::ostream& out, const color& pixel_color){
+void write_color(std::ostream& out, const color pixel_color, int samples_per_pixel){
     auto r = pixel_color.x();
     auto g = pixel_color.y();
     auto b = pixel_color.z();
 
-    int rbyte = int(255.999 * r);
-    int gbyte = int(255.999 * g);
-    int bbyte = int(255.999 * b);
+    auto scale = 1.0 / samples_per_pixel;
+    r *= scale;
+    g *= scale;
+    b *= scale;
 
-    std::cout << rbyte << ' ' << gbyte << ' ' << bbyte << '\n';
+
+    out << static_cast<int>(256 * clamp(r, 0.0, 0.999)) << ' '
+        << static_cast<int>(256 * clamp(g, 0.0, 0.999)) << ' '
+        << static_cast<int>(256 * clamp(b, 0.0, 0.999)) << '\n';
 }
 
 #endif

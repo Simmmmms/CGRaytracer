@@ -8,7 +8,7 @@ if [ -f output.ppm ]; then
 fi
 
 # Run Raytracer and pipe output to output.ppm
-./build/Raytracer >> output.ppm
+./Raytracer >> output.ppm
 
 # Informative message
 echo "Raytracer output saved to output.ppm"

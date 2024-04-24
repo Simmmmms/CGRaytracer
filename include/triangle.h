@@ -29,7 +29,11 @@ bool triangle::hit(const ray&r, double t_min, double t_max, hit_record& rec) con
 
 
     auto D = -tNorm.dot(verticies[0]);//Distance between origin and plane
-    auto t = -(tNorm.dot(r.origin())+D) / tNorm.dot(r.direction()); //Distance between the ray origin and intersection point
+    auto t = -(tNorm.dot(r.origin())+D) / tNorm.dot(r.direction());
+
+    if(t < t_min || t_max < t){
+        return false;
+    }
 
     if(t<0){//Checks if triangle is behind ray
         return false;
@@ -60,7 +64,9 @@ bool triangle::hit(const ray&r, double t_min, double t_max, hit_record& rec) con
     if(tNorm.dot(c) < 0){
         return false;
     }
-    
+
+
+
     rec.t = t;
     rec.p = phit;
     rec.set_face_normal(r, tNorm);
