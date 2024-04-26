@@ -8,63 +8,68 @@
 class triangle: public hittable{
     public:
         triangle(){}
-        triangle(std::vector<vec3>& vert, shared_ptr<material> m) : verticies(vert), mat_ptr(m){};
+        triangle(std::vector<vec3>& vert, shared_ptr<material> m) : verticies(vert), mat_ptr(m){
+            A = verticies[1] - verticies[2]; //AB
+            B = verticies[2] - verticies[0]; //AC
+            C = verticies[0] - verticies[1]; 
+            tNorm = A.cross(B).normalized();//Triangles normal
+            NA = tNorm.cross(A);
+            NA = NA / NA.dot(C);
+
+            NB = tNorm.cross(B);
+            NB = NB / NB.dot(A);
+
+            CA = NA.dot(verticies[1]);
+            CB = NB.dot(verticies[2]);
+            AdotN = tNorm.dot(verticies[0]);
+            
+        };
 
         virtual bool hit(const ray&r, double t_min, double t_max, hit_record& rec) const override;
 
         public:
             std::vector<vec3> verticies;
             shared_ptr<material> mat_ptr;
+            vec3 tNorm;
+            vec3 A;
+            vec3 B;
+            vec3 C;
+            vec3 NA;
+            vec3 NB;
+            float CA;
+            float CB;
+            float AdotN;
 
 };
 
 bool triangle::hit(const ray&r, double t_min, double t_max, hit_record& rec) const{
 
-    vec3 A = verticies[1] - verticies[0]; //AB
-    vec3 B = verticies[2] - verticies[0]; //AC
-    vec3 tNorm = A.cross(B).normalized();//Triangles normal
-
-        if(tNorm.dot(r.direction()) == 0){//Checks if the ray is perpendicular to the plane of the triangle
+    if(tNorm.dot(r.direction().normalized()) == 0){//Checks if the ray is perpendicular to the plane of the triangle
         return false;
     }
 
-
-    auto D = -tNorm.dot(verticies[0]);//Distance between origin and plane
-    auto t = -(tNorm.dot(r.origin())+D) / tNorm.dot(r.direction());
+    float t = ((AdotN - tNorm.dot(r.origin())) / tNorm.dot(r.direction().normalized()));
 
     if(t < t_min || t_max < t){
         return false;
     }
 
     if(t<0){//Checks if triangle is behind ray
+       return false;
+    }
+
+    vec3 phit = r.origin() + t * r.direction().normalized();//point where ray intersects the plane
+
+    float a = NA.dot(phit) - CA;
+    if(a<0||a>1){
         return false;
     }
 
-    vec3 phit = r.origin() + t * r.direction();//point where ray intersects the plane
-
-
-    vec3 c;
-
-    vec3 edge0 = verticies[1] - verticies[0];
-    vec3 c0 = phit - verticies[0];
-    c = edge0.cross(c0);
-    if(tNorm.dot(c) < 0){
+    float b = NB.dot(phit) - CB;
+    if(b<0||1-a-b < 0){
         return false;
     }
 
-    vec3 edge1 = verticies[2] - verticies[1];
-    vec3 c1 = phit - verticies[1];
-    c = edge1.cross(c1);
-    if(tNorm.dot(c) < 0){
-        return false;
-    }
-
-    vec3 edge2 = verticies[0] - verticies[2];
-    vec3 c2 = phit - verticies[2];
-    c = edge2.cross(c2);
-    if(tNorm.dot(c) < 0){
-        return false;
-    }
 
 
 
