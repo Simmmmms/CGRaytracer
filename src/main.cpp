@@ -5,6 +5,7 @@
 #include <sphere.h>
 #include <triangle.h>
 #include <camera.h>
+#include <materials.h>
 
 color ray_color(const ray& r, const hittable& world, int depth) {
     hit_record rec;
@@ -14,12 +15,14 @@ color ray_color(const ray& r, const hittable& world, int depth) {
     }
 
     if(world.hit(r,0.001,infinity,rec)){
-        //Closer to perfect diffuse
-        point3 target = rec.p + random_in_hemisphere(rec.normal);
-        //approximation of lambertian diffuse
-        //point3 target = rec.p + rec.normal + random_unit_vector();
-        return 0.5 * ray_color(ray(rec.p, target - rec.p), world, depth-1);
+        ray scattered;
+        color attenuation;
+        if(rec.mat_ptr->scatter(r,rec,attenuation,scattered)){
+            return attenuation.asDiagonal() * ray_color(scattered, world, depth-1);
+        }
+        return color(0,0,0);
     }
+
     vec3 unit_direction = r.direction().normalized();
     auto t = 0.5*(unit_direction.y() + 1.0);
     return (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0);
@@ -27,8 +30,16 @@ color ray_color(const ray& r, const hittable& world, int depth) {
 
 
 int main(){
+
+
     std::vector<vec3> t = {vec3(-2,0,-1), vec3(2,0,-1),vec3(0,1,-5)};
     std::vector<vec3> t2 = {vec3(-2,0,-2), vec3(2,0,-2),vec3(0,1,-2)};
+
+    auto material_sphere = make_shared<lambertian>(color(0.7,0.3,0.3));
+    auto material_ground = make_shared<lambertian>(color(0.8,0.8,0.0));
+    auto material_trione = make_shared<metal>(color(0.8, 0.8, 0.8));
+    auto material_tritwo = make_shared<metal>(color(0.8, 0.6, 0.2));
+    
     
     //Image attributes
 
@@ -43,11 +54,11 @@ int main(){
 
     //World attributes (objects in scene)
     hittable_list world;
-    world.add(make_shared<sphere>(point3(0,.25,-2), .5));
-    world.add(make_shared<triangle>(t));
-    world.add(make_shared<triangle>(t2));
-    world.add(make_shared<sphere>(point3(0,-.25,-2), .5));
-    world.add(make_shared<sphere>(point3(0,-100.5,-1), 98));
+    world.add(make_shared<sphere>(point3(0,.25,-2), .5, material_sphere));
+    world.add(make_shared<triangle>(t, material_trione));
+    world.add(make_shared<triangle>(t2, material_tritwo));
+    world.add(make_shared<sphere>(point3(0,-.25,-2), .5, material_sphere));
+    world.add(make_shared<sphere>(point3(0,-100.5,-1), 98, material_ground));
 
 
 

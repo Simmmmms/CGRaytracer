@@ -8,12 +8,13 @@
 class triangle: public hittable{
     public:
         triangle(){}
-        triangle(std::vector<vec3>& vert) : verticies(vert){};
+        triangle(std::vector<vec3>& vert, shared_ptr<material> m) : verticies(vert), mat_ptr(m){};
 
         virtual bool hit(const ray&r, double t_min, double t_max, hit_record& rec) const override;
 
         public:
             std::vector<vec3> verticies;
+            shared_ptr<material> mat_ptr;
 
 };
 
@@ -70,6 +71,7 @@ bool triangle::hit(const ray&r, double t_min, double t_max, hit_record& rec) con
     rec.t = t;
     rec.p = phit;
     rec.set_face_normal(r, tNorm);
+    rec.mat_ptr = mat_ptr;
 
     return true;
 

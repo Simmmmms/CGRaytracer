@@ -68,5 +68,15 @@ vec3 random_in_hemisphere(const vec3& normal) {
         return -in_unit_sphere;
 }
 
+bool near_zero(vec3 v){
+    // Return true if the vector is close to zero in all dimensions.
+    const auto s = 1e-8;
+    return (fabs(v.x()) < s) && (fabs(v.y()) < s) && (fabs(v.z()) < s);
+}
+
+vec3 reflect(const vec3& v, const vec3& n) {
+    return v - 2*(v.dot(n)*n);
+}
+
 
 #endif
