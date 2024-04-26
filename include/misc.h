@@ -7,6 +7,9 @@
 #include <memory>
 #include <random>
 
+#include "ray.h"
+#include <eigen3/Eigen/Core>
+
 using std::shared_ptr;
 using std::make_shared;
 using std::sqrt;
@@ -26,13 +29,44 @@ inline double random_double() {
     return distribution(generator);
 }
 
+inline double random_double(double min, double max) {
+    return min + (max-min)*random_double();
+}
+
 inline double clamp(double x, double min, double max) {
     if (x < min) return min;
     if (x > max) return max;
     return x;
 }
 
-#include "ray.h"
-#include <eigen3/Eigen/Core>
+
+inline static vec3 randomv3() {
+    return vec3(random_double(), random_double(), random_double());
+}
+
+inline static vec3 randomv3(double min, double max) {
+    return vec3(random_double(min,max), random_double(min,max), random_double(min,max));
+}
+
+vec3 random_in_unit_sphere() {
+    while (true) {
+        vec3 p = randomv3(-1,1);
+        if ((p.norm() * p.norm()) >= 1) continue;
+        return p;
+    }
+}
+
+vec3 random_unit_vector(){
+    return random_in_unit_sphere().normalized();
+}
+
+vec3 random_in_hemisphere(const vec3& normal) {
+    vec3 in_unit_sphere = random_in_unit_sphere();
+    if (in_unit_sphere.dot(normal) > 0.0) // In the same hemisphere as the normal
+        return in_unit_sphere;
+    else
+        return -in_unit_sphere;
+}
+
 
 #endif

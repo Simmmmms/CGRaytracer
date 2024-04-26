@@ -14,9 +14,9 @@ target_include_directories(
     ${PROJECT_NAME}
     PUBLIC include
     )
-add_custom_command(
-    TARGET ${PROJECT_NAME}
-    POST_BUILD
-    COMMAND "../run.sh"
-)
+# add_custom_command(
+#     TARGET ${PROJECT_NAME}
+#     POST_BUILD
+#     COMMAND "../run.sh"
+# )
     
