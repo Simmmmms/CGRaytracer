@@ -4,6 +4,7 @@
 #include "hittable.h"
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
+#include <limits>
 
 class triangle: public hittable{
     public:
@@ -26,6 +27,7 @@ class triangle: public hittable{
         };
 
         virtual bool hit(const ray&r, double t_min, double t_max, hit_record& rec) const override;
+        bool bounding_box(double time0, double time1, aabb& output_box) const override;
 
         public:
             std::vector<vec3> verticies;
@@ -41,6 +43,26 @@ class triangle: public hittable{
             float AdotN;
 
 };
+
+bool triangle::bounding_box(double time0, double time1, aabb& output_box) const {
+    float minf = std::numeric_limits<float>::min();
+    float maxf = std::numeric_limits<float>::max();
+    vec3 min = vec3(maxf,maxf,maxf);
+    vec3 max = vec3(minf,minf,minf);
+
+    for(vec3 v: verticies){
+        min[0] = fmaxf(min.x(), v.x());
+        min[1] = fmaxf(min.y(), v.y());
+        min[2] = fmaxf(min.z(), v.z());
+
+        max[0] = fmaxf(max.x(), v.x());
+        max[1] = fmaxf(max.y(), v.y());
+        max[2] = fmaxf(max.z(), v.z());
+    }
+
+    output_box = aabb(min, max);
+    return true;
+}
 
 bool triangle::hit(const ray&r, double t_min, double t_max, hit_record& rec) const{
 

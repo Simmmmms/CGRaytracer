@@ -47,7 +47,7 @@ int main(){
     //Image attributes
 
     const auto aspect_ratio = (16.0 / 9.0);
-    const int samples_per_pixel = 1;
+    const int samples_per_pixel = 3;
     const int max_depth = 5;
     const int image_width = 400;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
@@ -59,7 +59,7 @@ int main(){
     //World attributes (objects in scene)
     hittable_list world;
 
-    //obj_reader objr = obj_reader("../cow.obj", material_tritwo, world);
+    // obj_reader objr = obj_reader("../cow.obj", material_ground, world);
 
     world.add(make_shared<sphere>(point3(0,.25,-2), .5, material_sphere));
     world.add(make_shared<triangle>(t, material_trione));
@@ -82,11 +82,18 @@ int main(){
                 //The pixel is specified by the offset from the lower left corner of the viewport
                 //anti aliasing is done by sampling pixel samples_per_pixel times
                 //massively increases render time
-                auto u = (i+random_double()) / (image_width -1 );
-                auto v = (j+random_double()) / (image_height -1 );
-
-                ray r = camera.get_ray(u,v);
-                pixel_color += ray_color(r,world, max_depth);
+                
+                if(samples_per_pixel == 1){
+                    auto u = double(i) / (image_width -1 );
+                    auto v = double(j) / (image_height -1 );
+                    ray r = camera.get_ray(u,v);
+                    pixel_color += ray_color(r,world, max_depth);
+                }else{
+                    auto u = (i+random_double()) / (image_width -1 );
+                    auto v = (j+random_double()) / (image_height -1 );
+                    ray r = camera.get_ray(u,v);
+                    pixel_color += ray_color(r,world, max_depth);
+                }
             }
             image[(image_height-j-1) * image_width + i] = pixel_color;
 
