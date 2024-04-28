@@ -37,7 +37,7 @@ int main(){
 
 
     std::vector<vec3> t = {vec3(-2,0,-1), vec3(2,0,-1),vec3(0,1,-5)};
-    std::vector<vec3> t2 = {vec3(-2,0,-2), vec3(2,0,-2),vec3(0,1,-2)};
+    std::vector<vec3> t2 = {vec3(-15,-6,-15), vec3(15,-6,-15),vec3(0,11,-15)};
 
     auto material_sphere = make_shared<lambertian>(color(0.7,0.3,0.3));
     auto material_ground = make_shared<lambertian>(color(0.8,0.8,0.0));
@@ -48,28 +48,29 @@ int main(){
     //Image attributes
 
     const auto aspect_ratio = (16.0 / 9.0);
-    const int samples_per_pixel = 3;
+    const int samples_per_pixel = 5;
     const int max_depth = 5;
     const int image_width = 400;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
     color image[image_height*image_width];
 
     //Camera
-    camera camera;
+    camera camera(point3(0,0,0), point3(0,0,-1), point3(0,1,0),90.0, aspect_ratio);
 
     //World attributes (objects in scene)
 
-    hittable_list cow;
-    obj_reader objr = obj_reader("../cow.obj", material_ground, cow);
+    hittable_list objects;
+    obj_reader objr = obj_reader("../smalltest.obj", material_ground, objects);
+
+
+    // objects.add(make_shared<sphere>(point3(0,.25,-2), .5, material_sphere));
+    // objects.add(make_shared<triangle>(t, material_trione));
+     objects.add(make_shared<triangle>(t2, material_trione));
+    // objects.add(make_shared<sphere>(point3(0,-.25,-2), .5, material_sphere));
+    // objects.add(make_shared<sphere>(point3(0,-100.5,-1), 98, material_ground));
 
     hittable_list world;
-    world.add(make_shared<bvh_node>(cow, 0,1));
-
-    // world.add(make_shared<sphere>(point3(0,.25,-2), .5, material_sphere));
-    // world.add(make_shared<triangle>(t, material_trione));
-    // world.add(make_shared<triangle>(t2, material_tritwo));
-    // world.add(make_shared<sphere>(point3(0,-.25,-2), .5, material_sphere));
-    // world.add(make_shared<sphere>(point3(0,-100.5,-1), 98, material_ground));
+    world.add(make_shared<bvh_node>(objects, 0,1));
 
 
 
