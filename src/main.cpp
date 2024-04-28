@@ -8,6 +8,7 @@
 #include <materials.h>
 #include <object_reader.h>
 #include <omp.h>
+#include <bvh.h>
 
 color ray_color(const ray& r, const hittable& world, int depth) {
     hit_record rec;
@@ -57,15 +58,18 @@ int main(){
     camera camera;
 
     //World attributes (objects in scene)
+
+    hittable_list cow;
+    obj_reader objr = obj_reader("../cow.obj", material_ground, cow);
+
     hittable_list world;
+    world.add(make_shared<bvh_node>(cow, 0,1));
 
-    // obj_reader objr = obj_reader("../cow.obj", material_ground, world);
-
-    world.add(make_shared<sphere>(point3(0,.25,-2), .5, material_sphere));
-    world.add(make_shared<triangle>(t, material_trione));
-    world.add(make_shared<triangle>(t2, material_tritwo));
-    world.add(make_shared<sphere>(point3(0,-.25,-2), .5, material_sphere));
-    world.add(make_shared<sphere>(point3(0,-100.5,-1), 98, material_ground));
+    // world.add(make_shared<sphere>(point3(0,.25,-2), .5, material_sphere));
+    // world.add(make_shared<triangle>(t, material_trione));
+    // world.add(make_shared<triangle>(t2, material_tritwo));
+    // world.add(make_shared<sphere>(point3(0,-.25,-2), .5, material_sphere));
+    // world.add(make_shared<sphere>(point3(0,-100.5,-1), 98, material_ground));
 
 
 

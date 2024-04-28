@@ -51,9 +51,9 @@ bool triangle::bounding_box(double time0, double time1, aabb& output_box) const 
     vec3 max = vec3(minf,minf,minf);
 
     for(vec3 v: verticies){
-        min[0] = fmaxf(min.x(), v.x());
-        min[1] = fmaxf(min.y(), v.y());
-        min[2] = fmaxf(min.z(), v.z());
+        min[0] = fminf(min.x(), v.x());
+        min[1] = fminf(min.y(), v.y());
+        min[2] = fminf(min.z(), v.z());
 
         max[0] = fmaxf(max.x(), v.x());
         max[1] = fmaxf(max.y(), v.y());
