@@ -13,6 +13,15 @@ double schlick(double cosine, double ref_idx)
     return r0 + (1 - r0) * pow((1 - cosine), 5);
 }
 
+// refract function
+vec3 refract(const vec3 &uv, const vec3 &normal, double etai_over_etat)
+{
+    double cos_theta = fmin((-uv).dot(normal), 1.0);
+    vec3 r_out_perp = etai_over_etat * (uv + cos_theta * normal);
+    vec3 r_out_parallel = -sqrt(fabs(1.0 - r_out_perp.length_squared())) * normal;
+    return r_out_perp + r_out_parallel;
+}
+
 class material
 {
 public:
