@@ -18,8 +18,16 @@ vec3 refract(const vec3 &uv, const vec3 &normal, double etai_over_etat)
 {
     double cos_theta = fmin((-uv).dot(normal), 1.0);
     vec3 r_out_perp = etai_over_etat * (uv + cos_theta * normal);
-    vec3 r_out_parallel = -sqrt(fabs(1.0 - r_out_perp.length_squared())) * normal;
+    vec3 r_out_parallel = -sqrt(fabs(1.0 - r_out_perp.squaredNorm())) * normal;
     return r_out_perp + r_out_parallel;
+}
+
+// gets random float
+double random_float()
+{
+    static std::uniform_real_distribution<float> distribution(0.0, 1.0);
+    static std::mt19937 generator; // Mersenne Twister PRNG
+    return distribution(generator);
 }
 
 class material
