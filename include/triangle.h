@@ -42,6 +42,14 @@ class triangle: public hittable{
             float CB;
             float AdotN;
 
+        private: 
+            void get_triangle_uv(const point3& p, double& u, double& v) const {
+
+                    double denom = A.dot(B);
+                    u = (B.dot(C)/denom);
+                    v = (A.dot(C)/denom);
+            }
+
 };
 
 bool triangle::bounding_box(double time0, double time1, aabb& output_box) const {
@@ -80,7 +88,7 @@ bool triangle::hit(const ray&r, double t_min, double t_max, hit_record& rec) con
        return false;
     }
 
-    vec3 phit = r.origin() + t * r.direction().normalized();//point where ray intersects the plane
+    point3 phit = r.origin() + t * r.direction().normalized();//point where ray intersects the plane
 
     float a = NA.dot(phit) - CA;
     if(a<0||a>1){
@@ -98,11 +106,14 @@ bool triangle::hit(const ray&r, double t_min, double t_max, hit_record& rec) con
     rec.t = t;
     rec.p = phit;
     rec.set_face_normal(r, tNorm);
+    get_triangle_uv(phit, rec.u, rec.v);
     rec.mat_ptr = mat_ptr;
 
     return true;
 
 
 }
+
+
 
 #endif

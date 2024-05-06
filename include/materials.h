@@ -2,6 +2,7 @@
 #define MATERIALs_H
 
 #include "misc.h"
+#include "texture.h"
 
 struct hit_record;
 
@@ -22,17 +23,14 @@ vec3 refract(const vec3 &uv, const vec3 &normal, double etai_over_etat)
     return r_out_perp + r_out_parallel;
 }
 
-// gets random float
-double random_float()
-{
-    static std::uniform_real_distribution<float> distribution(0.0, 1.0);
-    static std::mt19937 generator; // Mersenne Twister PRNG
-    return distribution(generator);
-}
 
 class material
 {
 public:
+    virtual color emitted(double u, double v, const point3& p) const {
+        return color(0,0,0);
+    }
+
     virtual bool scatter(
         const ray &r_in, const hit_record &rec, color &attenuation, ray &scattered) const = 0;
 };
@@ -57,7 +55,8 @@ public:
 class lambertian : public material
 {
 public:
-    lambertian(const color &a) : albedo(a) {}
+        lambertian(const color& a) : albedo(make_shared<solid_color>(a)) {}
+        lambertian(shared_ptr<texture> a) : albedo(a) {}
 
     virtual bool scatter(
         const ray &r_in, const hit_record &rec, color &attenuation, ray &scattered) const override
@@ -70,12 +69,12 @@ public:
         }
 
         scattered = ray(rec.p, scatter_direction);
-        attenuation = albedo;
+        attenuation = albedo->value(rec.u, rec.v, rec.p);
         return true;
     }
 
 public:
-    color albedo;
+    shared_ptr<texture> albedo;
 };
 
 class metal : public material
@@ -100,12 +99,11 @@ public:
 class dielectric : public material
 {
 public:
-    dielectric(float ri) : refraction_index(ri) {}
+    dielectric(float ri, color att) : refraction_index(ri), attenuation(att) {}
 
     virtual bool scatter(
         const ray &r_in, const hit_record &rec, color &attenuation, ray &scattered) const override
     {
-        attenuation = color(1.0, 1.0, 1.0);
         float etai_over_etat = (rec.front_face) ? (1.0 / refraction_index) : refraction_index;
 
         vec3 unit_direction = r_in.direction().normalized();
@@ -134,6 +132,7 @@ public:
 
 public:
     float refraction_index;
+    color attenuation;
 };
 
 // plastic material
@@ -154,6 +153,51 @@ public:
 public:
     color albedo;
     float fuzz;
+};
+
+class diffuse_light : public material  {
+    public:
+        diffuse_light(shared_ptr<texture> a) : emit(a) {}
+        diffuse_light(color c) : emit(make_shared<solid_color>(c)) {}
+
+        virtual bool scatter(
+            const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered
+        ) const override {
+            return false;
+        }
+
+        virtual color emitted(double u, double v, const point3& p) const override {
+            return emit->value(u, v, p);
+        }
+
+    public:
+        shared_ptr<texture> emit;
+};
+
+class checkered_compound : public material
+{
+public:
+        checkered_compound(shared_ptr<material> a1, shared_ptr<material>a2, double s) : albedo1(a1), albedo2(a2), scale(s) {}
+
+    virtual bool scatter(
+        const ray &r_in, const hit_record &rec, color &attenuation, ray &scattered) const override
+    {
+        if(tilevalue(rec.u, rec.v, rec.p)){
+            return albedo1->scatter(r_in,rec,attenuation,scattered);
+        }else{
+            return albedo2->scatter(r_in,rec,attenuation,scattered);
+        }
+    }
+
+    virtual int tilevalue(double u, double v, const point3& p) const {
+            auto sines = sin(scale*p.x())*sin(scale*p.y())*sin(scale*p.z());
+            return sines<0;
+        }
+
+public:
+    shared_ptr<material> albedo1;
+    shared_ptr<material> albedo2;
+    double scale;
 };
 
 #endif

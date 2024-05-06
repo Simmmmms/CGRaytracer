@@ -38,6 +38,12 @@ inline int random_int(int min, int max) {
     return static_cast<int>(random_double(min, max+1));
 }
 
+inline double random_float(){
+    static std::uniform_real_distribution<float> distribution(0.0, 1.0);
+    static std::mt19937 generator; // Mersenne Twister PRNG
+    return distribution(generator);
+}
+
 inline double clamp(double x, double min, double max) {
     if (x < min) return min;
     if (x > max) return max;

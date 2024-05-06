@@ -2,3 +2,5 @@ build
 .vscode
 *.ppm
 *.obj
+eigen3
+.vs/*
