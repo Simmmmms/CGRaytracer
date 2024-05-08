@@ -71,3 +71,6 @@ You should add the objects to a new hittable_list that contains a BVH like so
 
 
 This is a data structure to aid performance. It is not necessary to use but significantly increases performance.
+
+# Running
+In order to run the raytracer, you must have built the file with your specified parameters, then run ```./Raytracer > output.ppm``` in order to output the file. 

@@ -63,7 +63,7 @@ int main(){
     //Image attributes
 
     const int samples_per_pixel = 1000;
-    const int max_depth = 25;
+    const int max_depth = 50;
     const int image_width = 400;
     const int image_height = 250;
     const int image_size = image_width * image_height;
@@ -71,13 +71,13 @@ int main(){
     shared_ptr<color[]> image(new color[image_size]);
 
     //Camera
-    camera camera(point3(90,80,45), point3(35,15,-15), point3(0,1,0),65.0, aspect_ratio);
+    camera camera(point3(90,80,45), point3(35,15,-15), point3(0,1,0),90.0, aspect_ratio);
     // camera camera(point3(0,0,0), point3(0,0,-1), point3(0,1,0),90.0, aspect_ratio);
 
     //World attributes (objects in scene)
 
     hittable_list objects;
-    obj_reader objr = obj_reader("../cow.obj", material_plastic, objects);
+    obj_reader objr = obj_reader("../horse.obj", material_plastic, objects);
     obj_reader objrplane = obj_reader("../plane.obj", cow_checkered_plane, objects);
 
 
