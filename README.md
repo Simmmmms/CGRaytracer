@@ -24,7 +24,7 @@ There are 6 material types
 5. diffuse_light - This is a material that emits light. It takes one parameter, the color. Colors with values of greater than (1,1,1) are necessary for light to be emitted.
 6. checkered_compund - This is a material that takes two other materials and turns them into a checkerboard pattern. It accepts 3 parameters, material1, materials2, and the scale.
 
-To start the render run the executatble and pipe it into a ppm file
+To start the render run the executable and pipe it into a ppm file
 ```./Raytracer > output.ppm```
 
 
